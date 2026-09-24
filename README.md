@@ -66,6 +66,9 @@ word list.
 
 ## Studio
 
+Deployed at https://cryptonym-desk.sanity.studio (editing needs project membership —
+the [corpus page](https://casareanderson.github.io/cryptonym-desk-sanity/corpus/) is the public view). To run it locally:
+
 ```bash
 cd studio && npm install && npx sanity dev
 ```
