@@ -1,0 +1,321 @@
+---
+import { loadCorpus, PROJECT_ID, DATASET } from "../lib/corpus.js";
+const corpus = await loadCorpus();
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+// JSON inside <script> must not be able to close the tag.
+const data = JSON.stringify({
+  digraphs: corpus.digraphs, banks: corpus.banks, presets: corpus.presets, rev: corpus.rev,
+}).replace(/</g, "\\u003c");
+const desc = "Name the films, anime and characters you like and the desk issues you a cryptonym, a working alias and a field codename cut from them. Everything runs in your browser.";
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content={desc}>
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Cryptonym Desk">
+<meta property="og:description" content={desc}>
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%95%B5%EF%B8%8F</text></svg>">
+<title>Cryptonym Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&family=Public+Sans:ital,wght@0,400;0,600;0,800;1,400&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href={`${base}desk.css`}>
+</head>
+<body>
+<div class="shell">
+
+  <header class="mast">
+    <div>
+      <h1>Cryptonym<br><em>Desk</em></h1>
+      <div class="filestrip">
+        <span>REF <span id="fileref">—</span></span>
+        <span>CORPUS <a href={`${base}corpus/`} title="The word banks this record was drawn from">{corpus.rev}</a></span>
+        <span>ISSUED <span id="issued">—</span></span>
+      </div>
+    </div>
+    <p class="sub">Name the films, anime and characters you like. The desk issues you a
+      cryptonym, a working alias and a field codename built out of them.</p>
+  </header>
+
+  <div class="cols">
+
+    <section class="intake" aria-labelledby="intake-h">
+      <h2 class="panel-label" id="intake-h">Source material</h2>
+      <p class="help">Anything you like the sound of — a film, a series, a character, a
+        person. Two or three is enough; more gives the desk more to cut up.</p>
+
+      <form class="field" id="addform">
+        <label for="seedinput" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Add source material</label>
+        <input type="text" id="seedinput" placeholder="Cowboy Bebop, Ripley, Akira…" autocomplete="off">
+        <button type="submit">Add</button>
+      </form>
+
+      <div class="chips" id="chips" role="list" aria-label="Your source material"></div>
+
+      <div class="presets">
+        <h3 class="panel-label">Or start from a set</h3>
+        <div class="row" id="presets"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="issue">Issue new record</button>
+        <button type="button" class="ghost" id="clear">Clear all</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="record-h">
+      <h2 class="panel-label" id="record-h">Personnel record</h2>
+
+      <article class="record">
+        <div class="record-head">
+          <span>Restricted handling</span>
+          <span class="clearance" id="clearance">—</span>
+        </div>
+
+        <div class="cryptonym-block">
+          <p class="cryptonym" id="cryptonym">—</p>
+          <p class="cryptonym-note" id="cryptonym-note">—</p>
+        </div>
+
+        <dl class="rows">
+          <div class="row-item">
+            <dt>Working alias</dt>
+            <dd id="alias">—<span class="gloss" id="alias-gloss"></span></dd>
+          </div>
+          <div class="row-item">
+            <dt>Field codename</dt>
+            <dd id="codename">—<span class="gloss" id="codename-gloss"></span></dd>
+          </div>
+          <div class="row-item">
+            <dt>Cover</dt>
+            <dd id="cover">—</dd>
+          </div>
+        </dl>
+
+        <div class="meta">
+          <div><span>Station</span><strong id="station">—</strong></div>
+          <div><span>Directorate</span><strong id="directorate">—</strong></div>
+          <div><span>Recruited</span><strong id="recruited">—</strong></div>
+        </div>
+
+        <div class="record-foot">
+          <button type="button" class="ghost" id="copy">Copy record</button>
+          <button type="button" class="ghost" id="reroll">Reroll</button>
+          <span class="toast" id="toast" role="status" aria-live="polite"></span>
+        </div>
+      </article>
+
+      <div class="alts">
+        <h3 class="panel-label">Other cryptonyms on file</h3>
+        <div class="alt-grid" id="alts"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="colophon">
+    <div>
+      <h3>Why a digraph</h3>
+      <p>Real CIA cryptonyms are a two-letter prefix naming the sponsoring office, then an
+        arbitrary word: <code>AEDINOSAUR</code>, <code>QKACTIVE</code>, <code>LIENVOY</code>.
+        The word is chosen to mean nothing. Yours is cut from what you gave the desk.</p>
+    </div>
+    <div>
+      <h3>How the alias is cut</h3>
+      <p>A working alias is a mashup, not a pick: the desk splits your names at their vowel
+        groups and grafts the front of one onto the tail of another, so it reads like a
+        person rather than a reference.</p>
+    </div>
+    <div>
+      <h3>Where the words come from</h3>
+      <p>The digraphs, word banks and presets live in a public Sanity dataset
+        (<code>{PROJECT_ID}/{DATASET}</code>, {corpus.count} documents). The page reads it
+        once, when it is built. <a href={`${base}corpus/`}>See the whole corpus</a>.</p>
+    </div>
+    <div>
+      <h3>Nothing leaves the page</h3>
+      <p>Everything is generated in your browser. What you type is not sent anywhere, stored
+        anywhere, or seen by anyone — including us. Not even Sanity: the corpus is baked in
+        at build time.</p>
+    </div>
+  </footer>
+</div>
+
+<script type="application/json" id="corpus-data" set:html={data}></script>
+<script>
+  import { build, titled } from "../lib/desk.js";
+
+  const corpus = JSON.parse(document.getElementById("corpus-data").textContent);
+  const PRESETS = corpus.presets;
+  const start = PRESETS.find((p) => p.label === "Cyberpunk") || PRESETS[0];
+
+  let seeds = start.seeds.slice();   // opens on a worked example
+  let salt  = 1;
+
+  const $ = (id) => document.getElementById(id);
+
+  function renderChips() {
+    const box = $("chips");
+    box.textContent = "";
+    if (!seeds.length) {
+      const empty = document.createElement("span");
+      empty.className = "toast";
+      empty.style.color = "var(--faint)";
+      empty.textContent = "No source material — add something above.";
+      box.appendChild(empty);
+      return;
+    }
+    seeds.forEach((s, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.setAttribute("role", "listitem");
+      chip.appendChild(document.createTextNode(s));
+      const x = document.createElement("button");
+      x.type = "button";
+      x.textContent = "×";
+      x.setAttribute("aria-label", "Remove " + s);
+      x.addEventListener("click", () => {
+        seeds.splice(i, 1);
+        renderChips();
+        render();
+      });
+      chip.appendChild(x);
+      box.appendChild(chip);
+    });
+  }
+
+  function render() {
+    const rec = build(corpus, seeds, salt);
+
+    const cn = $("cryptonym");
+    cn.textContent = "";
+    const dg = document.createElement("span");
+    dg.className = "digraph";
+    dg.textContent = rec.digraph;
+    cn.append(dg, rec.word);
+    $("cryptonym-note").textContent = rec.digraph + " = sponsoring office · word cut from “" + rec.from + "”";
+    $("alias").firstChild.nodeValue = rec.alias;
+    $("alias-gloss").textContent = rec.aliasFrom;
+    $("codename").firstChild.nodeValue = rec.codename;
+    $("codename-gloss").textContent = "for traffic that must not name the alias";
+    $("cover").textContent = titled(rec.cover.charAt(0)) + rec.cover.slice(1);
+    $("station").textContent = rec.station;
+    $("directorate").textContent = rec.dir;
+    $("recruited").textContent = rec.year;
+    $("clearance").textContent = rec.clearance;
+    $("fileref").textContent = rec.ref;
+    $("issued").textContent = new Date().toLocaleDateString("en-GB",
+      { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+
+    const grid = $("alts");
+    grid.textContent = "";
+    for (let n = 1; n <= 6; n++) {
+      const alt = build(corpus, seeds, salt + n * 977);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "alt";
+      b.title = "Promote this cryptonym to the record";
+      const name = document.createElement("b");
+      name.textContent = alt.digraph + alt.word;
+      const note = document.createElement("span");
+      note.textContent = alt.station + " · " + alt.clearance;
+      b.append(name, note);
+      b.addEventListener("click", () => {
+        salt = salt + n * 977;
+        render();
+        flash("Promoted to record");
+      });
+      grid.appendChild(b);
+    }
+  }
+
+  let toastTimer;
+  function flash(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.textContent = ""; }, 2400);
+  }
+
+  function addSeed(value) {
+    const v = value.trim().replace(/\s+/g, " ");
+    if (!v) return;
+    v.split(/\s*,\s*/).forEach((piece) => {
+      if (piece && seeds.indexOf(piece) === -1) seeds.push(piece);
+    });
+    renderChips();
+    render();
+  }
+
+  /* ── wiring ────────────────────────────────────────────────────────── */
+  $("addform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    addSeed($("seedinput").value);
+    $("seedinput").value = "";
+    $("seedinput").focus();
+  });
+
+  $("issue").addEventListener("click", () => {
+    salt = (salt + 1 + Math.floor(Math.random() * 9999)) >>> 0;
+    render();
+    flash("New record issued");
+  });
+
+  $("reroll").addEventListener("click", () => {
+    salt = (salt + 7919) >>> 0;
+    render();
+  });
+
+  $("clear").addEventListener("click", () => {
+    seeds = [];
+    renderChips();
+    render();
+    flash("Cleared");
+  });
+
+  $("copy").addEventListener("click", () => {
+    const lines = [
+      $("cryptonym").textContent,
+      "Working alias:   " + $("alias").firstChild.nodeValue,
+      "Field codename:  " + $("codename").firstChild.nodeValue,
+      "Cover:           " + $("cover").textContent,
+      "Station:         " + $("station").textContent,
+      "Directorate:     " + $("directorate").textContent,
+      "Clearance:       " + $("clearance").textContent,
+      "File:            " + $("fileref").textContent,
+      "Corpus:          " + corpus.rev
+    ].join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lines).then(
+        () => flash("Record copied"),
+        () => flash("Copy blocked — select it by hand")
+      );
+    } else {
+      flash("Copy blocked — select it by hand");
+    }
+  });
+
+  const presetRow = $("presets");
+  PRESETS.forEach((p) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "preset";
+    b.textContent = p.label;
+    b.addEventListener("click", () => {
+      seeds = p.seeds.slice();
+      salt = (salt + 31) >>> 0;
+      renderChips();
+      render();
+      flash("Loaded " + p.label.toLowerCase());
+    });
+    presetRow.appendChild(b);
+  });
+
+  renderChips();
+  render();
+</script>
+</body>
+</html>

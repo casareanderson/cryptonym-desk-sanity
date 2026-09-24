@@ -1,0 +1,490 @@
+
+  /* The artifact host supplies these; a standalone page must not assume them. */
+  html { color-scheme: light dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  /* ── tokens ────────────────────────────────────────────────────────────
+     Light is the base set; every colour used anywhere is declared here so
+     the un-stamped (system-default) document always resolves.            */
+  :root {
+    --ground:      #E4E9E7;
+    --surface:     #FAFBFA;
+    --surface-2:   #EEF2F0;
+    --ink:         #12201D;
+    --muted:       #586964;
+    --faint:       #8B9B96;
+    --rule:        #C7D2CE;
+    --rule-strong: #9FB0AB;
+    --teal:        #1B6660;
+    --teal-soft:   #D7E6E3;
+    --ochre:       #A8622A;
+    --ochre-soft:  #F0E2D4;
+    --shadow:      0 1px 2px rgba(18,32,29,.06), 0 8px 24px -12px rgba(18,32,29,.18);
+    --stamp-alpha: .68;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0D1413;
+      --surface:     #151F1D;
+      --surface-2:   #1B2725;
+      --ink:         #E2E9E6;
+      --muted:       #93A5A0;
+      --faint:       #6D7F7A;
+      --rule:        #26332F;
+      --rule-strong: #3A4B46;
+      --teal:        #57ACA3;
+      --teal-soft:   #14302D;
+      --ochre:       #D9974F;
+      --ochre-soft:  #2E2318;
+      --shadow:      0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+      --stamp-alpha: .8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:      #0D1413;
+    --surface:     #151F1D;
+    --surface-2:   #1B2725;
+    --ink:         #E2E9E6;
+    --muted:       #93A5A0;
+    --faint:       #6D7F7A;
+    --rule:        #26332F;
+    --rule-strong: #3A4B46;
+    --teal:        #57ACA3;
+    --teal-soft:   #14302D;
+    --ochre:       #D9974F;
+    --ochre-soft:  #2E2318;
+    --shadow:      0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    --stamp-alpha: .8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 1080px;
+    margin-inline: auto;
+    padding-inline: 20px;
+    padding-block: 36px 72px;
+  }
+
+  /* ── masthead ──────────────────────────────────────────────────────── */
+  .mast {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+  }
+  .mast h1 {
+    font-family: Antonio, "Public Sans", sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 8vw, 4.4rem);
+    line-height: .88;
+    letter-spacing: .005em;
+    margin: 0;
+    text-wrap: balance;
+    text-transform: uppercase;
+  }
+  .mast h1 em {
+    font-style: normal;
+    color: var(--teal);
+  }
+  .mast .sub {
+    font-size: .82rem;
+    color: var(--muted);
+    max-width: 34ch;
+    margin: 0;
+  }
+  .filestrip {
+    font-family: "Share Tech Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    color: var(--faint);
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-bottom: 4px;
+  }
+
+  /* ── layout ────────────────────────────────────────────────────────── */
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 32px;
+    margin-top: 32px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .cols { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  }
+
+  .panel-label {
+    font-family: "Share Tech Mono", ui-monospace, monospace;
+    font-size: .7rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+  }
+  .panel-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── intake ────────────────────────────────────────────────────────── */
+  .intake p.help {
+    font-size: .88rem;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  .field {
+    display: flex;
+    gap: 8px;
+  }
+  input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: .95rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 2px;
+    padding: 11px 12px;
+  }
+  input[type="text"]::placeholder { color: var(--faint); }
+  input[type="text"]:focus-visible,
+  button:focus-visible,
+  .chip button:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  button {
+    font-family: "Public Sans", sans-serif;
+    font-weight: 600;
+    font-size: .82rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--ground);
+    padding: 11px 16px;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+  }
+  button.ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--rule-strong);
+  }
+  button.ghost:hover { border-color: var(--ink); background: var(--surface-2); }
+  button:hover { background: var(--teal); border-color: var(--teal); color: var(--surface); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 16px;
+    min-height: 30px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--teal);
+    border-radius: 2px;
+    padding: 4px 6px 4px 9px;
+    font-size: .82rem;
+    line-height: 1.3;
+  }
+  .chip button {
+    all: unset;
+    cursor: pointer;
+    color: var(--faint);
+    font-family: "Share Tech Mono", monospace;
+    font-size: .9rem;
+    line-height: 1;
+    padding: 2px 3px;
+    border-radius: 2px;
+  }
+  .chip button:hover { color: var(--ochre); }
+
+  .presets {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+  .presets .row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .preset {
+    all: unset;
+    cursor: pointer;
+    font-size: .78rem;
+    color: var(--muted);
+    border: 1px dashed var(--rule-strong);
+    border-radius: 2px;
+    padding: 4px 9px;
+  }
+  .preset:hover { color: var(--teal); border-color: var(--teal); border-style: solid; }
+  .preset:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+
+  /* ── the credential ────────────────────────────────────────────────── */
+  .record {
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .record-head {
+    background: var(--teal-soft);
+    border-bottom: 1px solid var(--rule-strong);
+    padding: 10px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-family: "Share Tech Mono", monospace;
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .cryptonym-block {
+    padding: 30px 18px 26px;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .cryptonym {
+    font-family: Antonio, sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 9vw, 4.2rem);
+    line-height: 1;
+    letter-spacing: .01em;
+    margin: 0;
+    word-break: break-word;
+  }
+  .cryptonym .digraph { color: var(--ochre); }
+  .cryptonym-note {
+    font-family: "Share Tech Mono", monospace;
+    font-size: .68rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 12px 0 0;
+  }
+
+  .rows { padding: 4px 0; }
+  .row-item {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 14px;
+    padding: 12px 18px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rule);
+  }
+  .row-item:last-child { border-bottom: 0; }
+  @media (max-width: 460px) {
+    .row-item { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  }
+  .row-item dt {
+    font-family: "Share Tech Mono", monospace;
+    font-size: .67rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+  .row-item dd {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 600;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .row-item dd .gloss {
+    display: block;
+    font-family: "Public Sans", sans-serif;
+    font-size: .78rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    border-top: 1px solid var(--rule-strong);
+    background: var(--surface-2);
+  }
+  .meta div {
+    padding: 12px 16px;
+    border-right: 1px solid var(--rule);
+  }
+  .meta div:last-child { border-right: 0; }
+  .meta span {
+    display: block;
+    font-family: "Share Tech Mono", monospace;
+    font-size: .64rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 3px;
+  }
+  .meta strong {
+    font-size: .95rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .clearance {
+    font-family: Antonio, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ochre);
+    border: 2px solid var(--ochre);
+    border-radius: 2px;
+    padding: 1px 8px 0;
+    font-size: .82rem;
+    opacity: var(--stamp-alpha);
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+
+  .record-foot {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  .toast {
+    font-family: "Share Tech Mono", monospace;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    align-self: center;
+  }
+
+  /* ── alternates ────────────────────────────────────────────────────── */
+  .alts { margin-top: 28px; }
+  .alt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .alt {
+    all: unset;
+    cursor: pointer;
+    background: var(--surface);
+    padding: 14px 15px;
+    display: block;
+  }
+  .alt:hover { background: var(--teal-soft); }
+  .alt:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+  .alt b {
+    font-family: Antonio, sans-serif;
+    font-weight: 600;
+    font-size: 1.18rem;
+    letter-spacing: .01em;
+    display: block;
+    text-transform: uppercase;
+  }
+  .alt span {
+    font-family: "Share Tech Mono", monospace;
+    font-size: .64rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* ── colophon ──────────────────────────────────────────────────────── */
+  .colophon {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 26px;
+    font-size: .83rem;
+    color: var(--muted);
+  }
+  .colophon h3 {
+    font-family: "Share Tech Mono", monospace;
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .colophon p { margin: 0; }
+  .colophon code {
+    font-family: "Share Tech Mono", monospace;
+    color: var(--ochre);
+    font-size: .92em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  /* ── Sanity port: links, corpus page ───────────────────────────────── */
+  .filestrip a, .colophon a, .sub a { color: var(--teal); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  .sub code { font-family: "Share Tech Mono", monospace; color: var(--ochre); }
+  .corpus section { margin-top: 34px; }
+  .corpus .codes { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .corpus .codes li {
+    font-family: "Share Tech Mono", monospace; font-size: 1.05rem; letter-spacing: .08em;
+    padding: 6px 10px; border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ochre);
+  }
+  .corpus .banks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px 28px; }
+  .corpus table { width: 100%; border-collapse: collapse; font-size: .86rem; margin-top: 8px; }
+  .corpus td { padding: 4px 0; border-bottom: 1px solid var(--rule); }
+  .corpus td.w { text-align: right; font-family: "Share Tech Mono", monospace; color: var(--faint); padding-left: 10px; width: 1%; white-space: nowrap; }
+  .corpus .presetlist { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: .88rem; margin-top: 10px; }
+  .corpus .presetlist dt { font-weight: 600; }
+  .corpus .presetlist dd { margin: 0; color: var(--muted); }
+  .corpus .groq {
+    font-family: "Share Tech Mono", monospace; font-size: .8rem; background: var(--surface);
+    border: 1px solid var(--rule); padding: 14px; overflow-x: auto; color: var(--ink); margin-top: 10px;
+  }
+  @media (max-width: 460px) { .corpus .presetlist { grid-template-columns: 1fr; } .corpus .presetlist dd { margin-bottom: 8px; } }
+  .corpus p.help { color: var(--muted); font-size: .86rem; margin: 6px 0 0; max-width: 60ch; }

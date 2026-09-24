@@ -1,0 +1,83 @@
+---
+import { loadCorpus, BANKS, PROJECT_ID, DATASET, QUERY, queryUrl } from "../lib/corpus.js";
+const corpus = await loadCorpus();
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const share = (bank) => {
+  const total = corpus.banks[bank].reduce((s, e) => s + e.weight, 0);
+  return (e) => ((e.weight / total) * 100).toFixed(1) + "%";
+};
+const LABELS = {
+  stations: "Stations", directorates: "Directorates", clearances: "Clearances",
+  cover_role: "Cover roles", cover_firm: "Cover firms", adj: "Codename adjectives", noun: "Codename nouns",
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Desk Corpus</title>
+<meta name="description" content="Every digraph, word and preset the Cryptonym Desk draws from, read from a public Sanity dataset at build time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&family=Public+Sans:ital,wght@0,400;0,600;0,800;1,400&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href={`${base}desk.css`}>
+</head>
+<body>
+<div class="shell corpus">
+  <header class="mast">
+    <div>
+      <h1>Desk<br><em>Corpus</em></h1>
+      <div class="filestrip">
+        <span>REV {corpus.rev}</span>
+        <span>{corpus.count} DOCUMENTS</span>
+        <span><a href={base}>BACK TO THE DESK</a></span>
+      </div>
+    </div>
+    <p class="sub">Everything the desk draws from. It lives in a public Sanity dataset,
+      <code>{PROJECT_ID}/{DATASET}</code>, and this page was built from it — anyone can read the
+      same data with <a href={queryUrl()}>one GET request</a>, no token.</p>
+  </header>
+
+  <section>
+    <h2 class="panel-label">Digraphs · {corpus.digraphs.length} active</h2>
+    <p class="help">The two-letter office prefix. Picked uniformly; a digraph marked
+      <em>retired</em> in the dataset drops out of the next build.</p>
+    <ul class="codes">
+      {corpus.digraphs.map((d) => <li title={d.note}>{d.code}</li>)}
+    </ul>
+  </section>
+
+  <section class="banks">
+    {BANKS.map((b) => {
+      const pct = share(b);
+      return (
+        <div class="bank">
+          <h2 class="panel-label">{LABELS[b]} · {corpus.banks[b].length}</h2>
+          <table>
+            <tbody>
+              {corpus.banks[b].map((e) => (
+                <tr><td>{e.value}</td><td class="w">×{e.weight}</td><td class="w">{pct(e)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    })}
+  </section>
+
+  <section>
+    <h2 class="panel-label">Presets · {corpus.presets.length}</h2>
+    <dl class="presetlist">
+      {corpus.presets.map((p) => (<><dt>{p.label}</dt><dd>{p.seeds.join(" · ")}</dd></>))}
+    </dl>
+  </section>
+
+  <section>
+    <h2 class="panel-label">The query this page was built with</h2>
+    <pre class="groq">{QUERY}</pre>
+  </section>
+</div>
+</body>
+</html>
