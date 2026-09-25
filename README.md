@@ -16,7 +16,7 @@ is an Astro site built from it.
 - Project ID: **`en9phc0q`**, dataset **`production`** (public read)
 - Read the whole corpus, no token:
   `https://en9phc0q.api.sanity.io/v2024-01-01/data/query/production?query=*[_type in ["digraph","wordBank","preset"]]`
-- Schema: [`studio/schemaTypes/index.js`](studio/schemaTypes/index.js) — `digraph`, `wordBank`, `preset`
+- Schema: [`studio/schemaTypes/index.js`](studio/schemaTypes/index.js) — `digraph`, `wordBank`, `preset`, plus `wordProposal` for the [review workflow](#word-proposals-workflow)
 
 ## What changed from the single-file version
 
@@ -37,6 +37,56 @@ is an Astro site built from it.
   throws on click. The Studio schema enforces the same rules earlier.
 - **Retiring a digraph** is a boolean in the dataset; it drops out of the next build.
 
+## Word proposals workflow
+
+New words don't go straight into a bank. They arrive as **`wordProposal` documents**
+in the same dataset, and the review state is part of each document: a `status`
+(`proposed → in_review → approved | rejected → merged`), a `reviewerNote`, and an
+append-only `history` of `{status, at, by, note}`. There is no second database: the
+dataset alone answers "who approved CISTERN, and when".
+
+- **Rules in one place.** [`src/lib/proposals.js`](src/lib/proposals.js) has no
+  dependencies. It holds the transition table (you can't skip review, and `merged`
+  is final), the checks (a known bank, a weight above 0, a rationale; a rejection
+  needs a note) and the merge plan. The Studio, the app and the script all call it.
+- **Merge is code.** Merging writes a `wordBank` entry with a predictable id
+  (`noun-p-cistern`), capitalises codename words, and patches the proposal to
+  `merged` with a reference to the entry, all in **one transaction**. The
+  proposal patch is tied to the revision it was read at, so if two reviewers
+  merge at once, one of them fails instead of both going through. If the word is
+  already in the bank, no second entry is created. That is how `MERIDIAN` ended up
+  in the original desk twice.
+- **The site needs no change.** The build reads `wordBank` as before, so a merged
+  word shows up after the next build. Proposals are left out of the corpus
+  revision on purpose: moving a card doesn't change a record's `CORPUS` stamp, but
+  merging one does.
+
+Three ways to move a proposal:
+
+1. **Review queue app** ([`app/`](app/)), a Sanity **App SDK** app
+   (`@sanity/sdk-react`). It shows a live board of every proposal by status, with
+   the moves allowed from each one. `useQuery` keeps it live, so a move made in the
+   Studio or by the script shows up without a reload. Run it with
+   `cd app && npm install && npx sanity dev`; deploy it to the organisation
+   dashboard with `npx sanity deploy`. Deploying needs a *user* login with the
+   org-level `sanity.sdk.applications.deploy` grant; a project robot token gets a 403.
+2. **Studio document actions** ([`studio/actions.jsx`](studio/actions.jsx)):
+   Start review / Approve / Reject / Merge / Reopen on a proposal. Status, note
+   and history are read-only fields, so they only change through an action.
+3. **A script**, for batch work: `node scripts/proposals.mjs list | move <id> <status> [note] | merge <id>`
+   (writes need `SANITY_AUTH_TOKEN`). `scripts/seed-proposals.mjs` seeds the
+   demo proposals.
+
+| | |
+|---|---|
+| ![Review queue](docs/review-queue.png) | ![A proposal in review, in the Studio](docs/studio-proposal-in-review.png) |
+
+`CISTERN` went through all the steps against the live dataset and was merged from
+the app. `Asmara` is approved and waiting to be merged, `OVERCAST` is in review,
+`NIGHTSHADE` was rejected ("a codename that sounds like a codename gives the
+operation away"), and `Hallam & Rye Surveyors` is newly proposed. Check it
+yourself: `*[_type == "wordProposal"]{word, status, "mergedAs": mergedAs._ref}`.
+
 ## Two bugs the port found in the original
 
 1. **`MERIDIAN` was in the noun bank twice**, so it was drawn twice as often as
@@ -54,7 +104,7 @@ is an Astro site built from it.
 
 ```bash
 npm ci
-npm test        # generator + corpus-validation tests (node:test)
+npm test        # generator, corpus-validation and proposal-workflow tests (node:test)
 npm run dev     # fetches the corpus from Sanity, serves locally
 npm run build   # static site in dist/
 ```
