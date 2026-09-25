@@ -3,3 +3,6 @@ dist/
 .astro/
 studio/node_modules/
 studio/dist/
+app/node_modules/
+app/dist/
+app/.sanity/

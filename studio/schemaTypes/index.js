@@ -51,4 +51,57 @@ export const preset = {
   preview: {select: {title: "label"}},
 };
 
-export const schemaTypes = [digraph, wordBank, preset];
+// The review workflow as data: a proposal carries its own state. `status` is
+// the current step and `history` is the append-only log of every move, so the
+// dataset alone answers "who approved this, and when" - no shadow database.
+// status/history/mergedAs are read-only here: they only change through the
+// workflow (Studio actions, the proposal-queue app, scripts/proposals.mjs),
+// which all go through src/lib/proposals.js.
+const STATUS_LIST = [
+  {title: "Proposed", value: "proposed"},
+  {title: "In review", value: "in_review"},
+  {title: "Approved", value: "approved"},
+  {title: "Rejected", value: "rejected"},
+  {title: "Merged", value: "merged"},
+];
+
+export const wordProposal = {
+  name: "wordProposal", title: "Word proposal", type: "document",
+  fields: [
+    {name: "word", title: "Proposed word", type: "string", validation: (R) => R.required(),
+     description: "Codename adjectives and nouns are stored in capitals; the merge does that for you."},
+    {name: "bank", title: "Target bank", type: "string", validation: (R) => R.required(),
+     options: {list: BANKS, layout: "radio"}},
+    {name: "status", title: "Status", type: "string", readOnly: true, initialValue: "proposed",
+     options: {list: STATUS_LIST}},
+    {name: "reviewerNote", title: "Reviewer note", type: "text", rows: 2, readOnly: true},
+    {name: "history", title: "History", type: "array", readOnly: true,
+     of: [{type: "object", name: "historyEntry", fields: [
+       {name: "status", type: "string", options: {list: STATUS_LIST}},
+       {name: "at", type: "datetime"},
+       {name: "by", type: "string"},
+       {name: "note", type: "text"},
+     ], preview: {
+       select: {status: "status", at: "at", by: "by", note: "note"},
+       prepare: ({status, at, by, note}) => ({
+         title: `${(status || "").replace("_", " ")}${by ? ` · ${by}` : ""}`,
+         subtitle: `${(at || "").slice(0, 16).replace("T", " ")} UTC${note ? ` — ${note}` : ""}`,
+       }),
+     }}]},
+    {name: "weight", title: "Proposed weight", type: "number", initialValue: 1,
+     validation: (R) => R.required().positive(),
+     description: "For a clearance stamp this is how common it is: SECRET is 5, CODE WORD is 0.5."},
+    {name: "rationale", title: "Rationale", type: "text", rows: 3, validation: (R) => R.required(),
+     description: "Why it belongs. A cryptonym word should be drab - say why this one is."},
+    {name: "proposedBy", title: "Proposed by", type: "string"},
+    {name: "mergedAs", title: "Merged as", type: "reference", to: [{type: "wordBank"}],
+     readOnly: true, weak: true},
+  ],
+  preview: {
+    select: {word: "word", bank: "bank", status: "status"},
+    prepare: ({word, bank, status}) => ({title: word, subtitle: `${bank} · ${(status || "proposed").replace("_", " ")}`}),
+  },
+};
+
+export const schemaTypes = [digraph, wordBank, preset, wordProposal];
+

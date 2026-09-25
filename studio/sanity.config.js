@@ -1,6 +1,7 @@
 import {defineConfig} from "sanity";
 import {structureTool} from "sanity/structure";
 import {schemaTypes} from "./schemaTypes";
+import {workflowActions} from "./actions.jsx";
 
 export default defineConfig({
   name: "cryptonym-desk",
@@ -9,4 +10,7 @@ export default defineConfig({
   dataset: "production",
   plugins: [structureTool()],
   schema: {types: schemaTypes},
+  document: {
+    actions: (prev, {schemaType}) => (schemaType === "wordProposal" ? [...workflowActions, ...prev] : prev),
+  },
 });
