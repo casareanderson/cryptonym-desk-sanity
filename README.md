@@ -179,3 +179,5 @@ The demo proposals were run against the live dataset: `CISTERN` went through eve
 MIT, see [LICENSE](LICENSE). The original single-file desk is by the same author under the same licence.
 
 Built with [Astro](https://astro.build) and [Sanity](https://www.sanity.io) (Studio, `@sanity/client`, App SDK).
+
+If this is useful to you, [buy me a coffee](https://buymeacoffee.com/iamc_tech) ☕
