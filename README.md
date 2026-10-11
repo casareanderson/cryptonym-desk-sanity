@@ -6,6 +6,7 @@ Name the films, anime and characters you like, and the desk issues you a crypton
 
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 ![Built with Astro + Sanity](https://img.shields.io/badge/built%20with-Astro%20%2B%20Sanity-orange.svg)
+[![Buy Me a Coffee](https://raw.githubusercontent.com/casareanderson/.github/main/badges/bmc-yellow.svg)](https://buymeacoffee.com/iamc_tech)
 
 Live: **[the desk](https://casareanderson.github.io/cryptonym-desk-sanity/)** and **[the corpus](https://casareanderson.github.io/cryptonym-desk-sanity/corpus/)**.
 
