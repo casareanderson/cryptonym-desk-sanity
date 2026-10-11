@@ -45,6 +45,8 @@ More captures in [`docs/`](docs/): [`studio-proposal-in-review.png`](docs/studio
 
 ## Quick start
 
+Full step-by-step guide, tested on a fresh machine every week: [docs/SETUP.md](docs/SETUP.md).
+
 You need Node.js 20 and npm. No token is needed to build: the dataset is public-read.
 
 ```bash
