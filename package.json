@@ -11,5 +11,10 @@
   "dependencies": {
     "@sanity/client": "^7.0.0",
     "astro": "^5.0.0"
+  },
+  "overrides": {
+    "astro": {
+      "esbuild": "0.28.1"
+    }
   }
 }
