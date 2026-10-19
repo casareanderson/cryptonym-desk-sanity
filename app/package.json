@@ -9,5 +9,6 @@
     "react": "^19",
     "react-dom": "^19"
   },
-  "devDependencies": { "sanity": "^4" }
+  "devDependencies": { "sanity": "^4" },
+  "overrides": { "adm-zip": "0.6.1" }
 }
