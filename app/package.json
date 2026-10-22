@@ -10,5 +10,5 @@
     "react-dom": "^19"
   },
   "devDependencies": { "sanity": "^4" },
-  "overrides": { "adm-zip": "0.6.1", "braces": "npm:@franciscosolis/braces@3.1.1" }
+  "overrides": { "adm-zip": "0.6.1", "braces": "npm:@franciscosolis/braces@3.1.1", "markdown-it": "14.3.3" }
 }
