@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@sanity/client": "^7.0.0",
-    "astro": "^5.0.0"
+    "astro": "^7.2.8"
   },
   "overrides": {
     "astro": {
