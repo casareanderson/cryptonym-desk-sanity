@@ -10,5 +10,5 @@
     "react-dom": "^19"
   },
   "devDependencies": { "sanity": "^4" },
-  "overrides": { "adm-zip": "0.6.1", "braces": "npm:@franciscosolis/braces@3.1.1", "markdown-it": "14.3.3", "dompurify": "3.4.17" }
+  "overrides": { "adm-zip": "0.6.1", "braces": "npm:@franciscosolis/braces@3.1.1", "markdown-it": "14.3.3", "dompurify": "3.4.17", "@sanity/bifur-client": "2.0.2" }
 }
